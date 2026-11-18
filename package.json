@@ -1,0 +1,23 @@
+{
+  "name": "online-classroom",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hệ thống lớp học trực tuyến — Phạm Đình Bảo, 1822040642",
+  "scripts": {
+    "install:all": "npm install && npm --prefix server install && npm --prefix client install",
+    "dev": "concurrently -k -n API,WEB \"npm --prefix server run dev\" \"npm --prefix client run dev\"",
+    "dev:demo": "concurrently -k -n API,WEB \"npm --prefix server run dev:demo\" \"npm --prefix client run dev\"",
+    "start": "npm --prefix server start",
+    "build": "npm --prefix client run build",
+    "test": "npm --prefix server test",
+    "seed": "npm --prefix server run seed",
+    "format": "prettier --write \"client/src/**/*.{js,jsx,css}\" \"server/src/**/*.js\" \"server/test/**/*.js\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "prettier": "^3.10.1"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

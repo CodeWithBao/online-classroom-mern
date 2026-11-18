@@ -1,0 +1,12 @@
+import mongoose from 'mongoose';
+import { Course, Enrollment } from './models/index.js';
+export const fail = (status, message) => { const e = new Error(message); e.status = status; throw e; };
+export const id = value => { if (typeof value !== 'string' || !mongoose.isObjectIdOrHexString(value)) fail(400, 'Invalid ID'); return value; };
+export const text = (value, name, max = 200, required = true) => { if (typeof value !== 'string' || value.length > max || (required && !value.trim())) fail(400, `Invalid ${name}`); return value.trim(); };
+export const pick = (body, fields) => Object.fromEntries(fields.filter(k => Object.hasOwn(body || {}, k)).map(k => [k, body[k]]));
+export const get = async (Model, value) => { const doc = await Model.findById(id(value)); if (!doc) fail(404, 'Not found'); return doc; };
+export const owns = (user, course) => user.role === 'admin' || (user.role === 'teacher' && String(course.teacher._id || course.teacher) === String(user._id));
+export const ownedCourse = async (req, courseId) => { const course = await get(Course, courseId); if (!owns(req.user, course)) fail(403, 'Course owner required'); return course; };
+export const accessCourse = async (req, courseId) => { const course = await get(Course, courseId); const enrollment = await Enrollment.findOne({ course: course._id, student: req.user._id }); if (!owns(req.user, course) && !enrollment) fail(403, 'Enrollment required'); return { course, enrollment }; };
+export const send = (res, data, status = 200) => res.status(status).json({ data });
+export const httpUrl = value => { if (!value) return ''; try { const u = new URL(value); if (!['http:', 'https:'].includes(u.protocol)) throw new Error(); return u.href; } catch { fail(400, 'Only HTTP/HTTPS video URLs are allowed'); } };
